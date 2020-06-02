@@ -3,7 +3,7 @@ const app = require('express')();
 
 
 const { getAllScreams, postOneScream } = require('./handlers/screams');
-const { login, signup, uploadImage } = require('./handlers/users');
+const { login, signup, uploadImage, addUserDetails, getAuthenticatedUser} = require('./handlers/users');
 
 
 // Middleware for verifying if the user is logged in or not
@@ -19,6 +19,8 @@ app.post('/scream', FBAuth, postOneScream);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/user/image',  FBAuth, uploadImage);
+app.post('/user', FBAuth, addUserDetails);
+app.get('/user', FBAuth, getAuthenticatedUser);
 
 
 exports.api = functions.https.onRequest(app);
