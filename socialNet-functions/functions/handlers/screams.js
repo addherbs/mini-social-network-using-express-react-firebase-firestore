@@ -1,5 +1,6 @@
 const { admin, db } = require('../util/admin')
 
+
 exports.getAllScreams = (req, res) => {
 
     db  
@@ -47,3 +48,35 @@ exports.postOneScream = (req, res) => {
 
 }
 
+
+// We also create a composite-index in the collection screams, field createdAt, orderBy descending.
+// A link will be given when the db query is run 1st time and just clink on the link to create the index.
+exports.getScream = (req, res) => {
+    let screamData = {};
+    db
+        .doc(`/screams/${req.params.screamId}`).get()
+        .then((doc) => {
+            if (!doc.exists){
+                return res.status(404).json({ error: 'Scream not found'});
+            }
+            screamData = doc.data();
+            screamData.screamId = doc.id;
+            console.log("testing, ", doc.id, req.params.screamId);
+            return db
+                .collection('comments')
+                .orderBy('createdAt', 'desc')
+                .where('screamId', '==', req.params.screamId)
+                .get();
+        })
+        .then((data) => {
+            screamData.comments = [];
+            data.forEach((doc) => {
+                screamData.comments.push(doc.data());
+            });
+            return res.json(screamData);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ error: err.code });
+        });
+}
