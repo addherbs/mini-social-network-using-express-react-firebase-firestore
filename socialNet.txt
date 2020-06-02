@@ -5,6 +5,10 @@
 	mkdir socialNet
 	cd socialNet
 	firebase init
-		Select functions and install dependencies
+		==> Select functions and install dependencies
 		
 3. Make sure service account key and permissions are downloaded and linked to the code
+
+4. To test it while developing commands:
+	firebase serve
+	firebase deploy
