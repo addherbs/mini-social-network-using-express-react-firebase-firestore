@@ -102,10 +102,9 @@ exports.postCommentOnScream = (req, res) => {
         body: req.body.body,
         createdAt: new Date().toISOString(),
         screamId: req.params.screamId,
-        userHandle: req.user.userHandle,
+        userHandle: req.user.handle,
         userImage: req.user.imageUrl
     };
-
 
     // Verify if scream exists
     db.doc(`/screams/${req.params.screamId}`).get()
@@ -133,9 +132,9 @@ exports.postCommentOnScream = (req, res) => {
 // Liking a scream
 exports.likeScream = (req, res) => {
 
-    console.log("TEST: ", req.user.userHandle, req.params.screamId);
+    console.log("TEST: ", req.user.handle, req.params.screamId);
 
-    const likeDocument = db.collection('likes').where('userHandle', '==', req.user.userHandle)
+    const likeDocument = db.collection('likes').where('userHandle', '==', req.user.handle)
         .where('screamId', '==', req.params.screamId).limit(1);
 
     const screamDocument = db.doc(`/screams/${req.params.screamId}`);
@@ -156,7 +155,7 @@ exports.likeScream = (req, res) => {
             if(data.empty){
                 return db.collection('likes').add({
                     screamId: req.params.screamId,
-                    userHandle: req.user.userHandle
+                    userHandle: req.user.handle
                 })
                 .then(() => {
                     screamData.likeCount++;
@@ -182,7 +181,7 @@ exports.likeScream = (req, res) => {
 exports.unlikeScream = (req, res) => {
     const likeDocument = db
         .collection('likes')
-        .where('userHandle', '==', req.user.userHandle)
+        .where('userHandle', '==', req.user.handle)
         .where('screamId', '==', req.params.screamId)
         .limit(1);
 
@@ -221,5 +220,25 @@ exports.unlikeScream = (req, res) => {
 }
 
 exports.deleteScream = (req, res) => {
+    const documentScream = db.doc(`/screams/${req.params.screamId}`);
+
+    documentScream.get()
+        .then(doc => {
+            if(!doc.exists) {
+                return res.status(400).json({ error: "Scream not found" });
+            }
+            if(doc.data().userHandle != req.user.handle){
+                return res.status(403).json({ error: "Unauthorized"});
+            } else {
+                return doc.ref.delete();
+            }
+        })
+        .then(() => {
+            res.json({ message: "Scream deleted Successfully" });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(res.status(500).json({error: err.code}));
+        });
 
 }
