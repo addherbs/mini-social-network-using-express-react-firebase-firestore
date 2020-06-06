@@ -1,11 +1,29 @@
 let db = {
-    scream: [
+    screams: [
         {
             userHandle: 'user',
             body: 'this is the scream body',
             createdAt:  '2020-06-01T06:25:05.851Z',
             likeCount: 5,
             commentCount: 2
+        }
+    ],
+    comments: [
+        {
+            userHandle: 'user',
+            screamId: '9OVnjmEGCFcCZaSrGp9B',
+            body: 'good comment!',
+            createdAt: '2020-06-01T06:25:05.851Z'
+        }
+    ],
+    notifications: [
+        {
+            recipient: 'user',
+            sender: 'test',
+            read: 'true | false',
+            screamId: '9OVnjmEGCFcCZaSrGp9B',
+            type: 'like | comment',
+            createdAt: '2020-06-01T06:25:05.851Z'
         }
     ]
 }
