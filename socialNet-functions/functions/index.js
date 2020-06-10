@@ -51,12 +51,14 @@ app.post('/notifications', FBAuth, markNotificationsRead);
 exports.api = functions.https.onRequest(app);
  
 
+// Below are all database triggers
+
 exports.createNotificationOnLike = functions.firestore
 .document('likes/{id}')
 .onCreate((snapshot) => {
     return db.doc(`/screams/${snapshot.data().screamId}`).get()
         .then(doc => {
-            if(doc.exists && doc.data().userHandle != snapshot.data.userHandle){
+            if(doc.exists && doc.data().userHandle !== snapshot.data.userHandle){
                  return db.doc(`/notifications/${snapshot.id}`).set({
                     createdAt: new Date().toISOString(),
                     recipient: doc.data().userHandle,
@@ -70,7 +72,6 @@ exports.createNotificationOnLike = functions.firestore
         .catch(err => 
             console.error(err));
 });
-
 
 
 exports.deleteNotificationOnUnlike = functions.firestore
@@ -91,7 +92,7 @@ exports.createNotificationOnComment = functions.firestore
 
     return db.doc(`/screams/${snapshot.data().screamId}`).get()
         .then(doc => {
-            if(doc.exists && doc.data().userHandle != snapshot.data.userHandle){
+            if(doc.exists && doc.data().userHandle !== snapshot.data.userHandle){
                 return db.doc(`/notifications/${snapshot.id}`).set({
                     createdAt: new Date().toISOString(),
                     recipient: doc.data().userHandle,
@@ -110,15 +111,18 @@ exports.createNotificationOnComment = functions.firestore
 
 // update imageUrl of all the screams by user if the user changes the image
 exports.onUserImageChange = functions.firestore
-.document('users/{userId}')
+.document('/users/{userId}')
 .onUpdate((change) => {
     console.log(change.before.data());
     console.log(change.after.data());
 
-    if(change.before.data().imageUrl != change.after.data().imageUrl) {
+    if(change.before.data().imageUrl !== change.after.data().imageUrl) {
 
         const batch = db.batch();
-        return db.collection('screams').where('userHandle', '==', change.before.data.handle).get()
+        return db
+            .collection('screams')
+            .where('userHandle', '==', change.before.data().handle)
+            .get()
             .then((data) => {
                 data.forEach(doc => {
                     const scream = db.doc(`/screams/${doc.id}`);
@@ -126,35 +130,35 @@ exports.onUserImageChange = functions.firestore
                 })
                 return batch.commit(); 
             })
-    }
+    } else return true;
 
 });
 
 
 // delete likes/ comments/ notifications if user deletes a scream
 exports.onScreamDelete = functions.firestore
-.document('screams/{screamId}')
+.document('/screams/{screamId}')
 .onDelete((snapshot, context) => {
 
     const screamId = context.params.screamId;
     let batch = db.batch();
 
     return db.collection('comments')
-        .where('screamId', '==', screamId.get())
+        .where('screamId', '==', screamId)
         .get()
         .then(data => {
             data.forEach(doc => {
                 batch.delete(db.doc(`/comments/${doc.id}`));
             })
 
-            return db.collection('likes').where('screamId', '==', screamId);
+            return db.collection('likes').where('screamId', '==', screamId).get();
         })
         .then(data => {
             data.forEach(doc => {
                 batch.delete(db.doc(`/likes/${doc.id}`));
             })
 
-            return db.collection('notifications').where('screamId', '==', screamId);
+            return db.collection('notifications').where('screamId', '==', screamId).get();
         })
         .then(data => {
             data.forEach(doc => {
