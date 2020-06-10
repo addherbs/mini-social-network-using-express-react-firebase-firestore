@@ -18,7 +18,8 @@ const { login,
     uploadImage, 
     addUserDetails, 
     getAuthenticatedUser,
-    getUserDetails
+    getUserDetails,
+    markNotificationsRead
 } = require('./handlers/users');
 
 
@@ -36,6 +37,7 @@ app.get('/scream/:screamId/like', FBAuth, likeScream);
 app.get('/scream/:screamId/unlike', FBAuth, unlikeScream);
 app.delete('/scream/:screamId', FBAuth, deleteScream);
 
+
 // User Routes
 app.post('/signup', signup);
 app.post('/login', login);
@@ -43,7 +45,8 @@ app.post('/user/image',  FBAuth, uploadImage);
 app.post('/user', FBAuth, addUserDetails);
 app.get('/user', FBAuth, getAuthenticatedUser);
 app.get('/user/:handle', getUserDetails);   // pulic route
-// app.post('/notifications', FBAuth, markNotificationsRead);
+app.post('/notifications', FBAuth, markNotificationsRead);
+
 
 exports.api = functions.https.onRequest(app);
 

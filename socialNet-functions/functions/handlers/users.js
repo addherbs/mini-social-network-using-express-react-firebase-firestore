@@ -227,6 +227,7 @@ exports.uploadImage = (req, res) => {
 
     });
 
+
     // Triggered once all uploaded files are processed by Busboy.
     // We now upload it to firebase bucket
     busboy.on('finish', () => {
@@ -261,5 +262,23 @@ exports.uploadImage = (req, res) => {
     });
     busboy.end(req.rawBody);
 };
+
+
+//Mark notifications read function for a user
+exports.markNotificationsRead = (req, res) => {
+    let batch = db.batch();
+    req.body.forEach(notifId => {
+        const notification = db.doc(`/notifications/${notifId}`);
+        batch.update(notification, { read : true});
+    });
+    batch.commit()
+        .then(() => {
+            return res.json({ message: "Notifications Marked Read"});
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: err.code });
+        });
+}
 
 
