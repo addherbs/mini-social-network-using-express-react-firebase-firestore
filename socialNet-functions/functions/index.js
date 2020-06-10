@@ -108,3 +108,25 @@ exports.createNotificationOnComment = functions.firestore
 });
 
 
+// update imageUrl of all the screams by user if the user changes the image
+exports.onUserImageChange = functions.firestore
+.document('users/{userId}')
+.onUpdate((change) => {
+    console.log(change.before.data());
+    console.log(change.after.data());
+
+    if(change.before.data().imageUrl != change.after.data().imageUrl) {
+
+        let batch = db.batch();
+        return db.collection('screams').where('userHandle', '==', change.before.data.handle).get()
+            .then((data) => {
+                data.forEach(doc => {
+                    const scream = db.doc(`/screams/${doc.id}`);
+                    batch.update(scream, { userImage: change.after.data().imageUrl });
+                })
+                return batch.commit(); 
+            })
+    }
+
+});
+
