@@ -10,7 +10,7 @@
 3. Make sure service account key and permissions are downloaded and linked to the code
 
 4. To test it while developing commands:
-	firebase serve				// Local serving and testing of firebase functions
+	firebase serve						// Local serving and testing of firebase functions
 	firebase deploy --only functions	// deploys them on gcp
 
 5. Chnage the databse rules because one can view our database collections from the public firestore api that google provies:
