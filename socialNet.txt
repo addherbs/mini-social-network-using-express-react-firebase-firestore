@@ -23,3 +23,16 @@
 		1. firebase databse:
 		2. Rules => Edit rules
 		3. allow read, write: if false;
+		
+		
+		
+6. React commands:
+	a. we will build socialnet-client for react building application
+	
+	b. 	npm install -g create-react-app
+		create-create-app socialnet-client
+		cd socialnet-client 
+		code .	// starting code in vscode
+		npm start // a basic react app is already build, we are going to modify this
+		
+		npm install --save react-router-dom
